@@ -90,7 +90,7 @@ def retrieve_similar_poc(vulnerability_description: str, top_k: int = 2) -> list
 
 # PyCharm 中右键 Run 这个文件可快速验证
 if __name__ == "__main__":
-    query = "contract sends Ether before updating balance allowing attacker to reenter withdraw"
+    query = "external call made before balance state update allows recursive withdrawal reentrancy attack"
     print(f"查询：{query}\n")
     results = retrieve_similar_poc(query, top_k=2)
     for i, r in enumerate(results):
