@@ -1,0 +1,21 @@
+{
+  "id": "018",
+  "slug": "mango_markets_oracle",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "Mango Markets",
+  "attack_date": "2022-10-11",
+  "tags": [
+    "oracle-manipulation",
+    "perps",
+    "cross-margin"
+  ],
+  "attack_primitives": [
+    "self-trading-price-pump",
+    "overstated-collateral-borrow"
+  ],
+  "aliases": [
+    "MNGO price exploit"
+  ],
+  "description": "Mango Markets incident combined aggressive self-trading with low-liquidity oracle exposure, creating artificial collateral value. Borrow limits expanded against manipulated account equity, enabling extraction.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Mango Markets\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

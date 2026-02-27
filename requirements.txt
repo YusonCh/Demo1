@@ -1,0 +1,13 @@
+# AutoAudit-demo — RAG + Agent + Sandbox 依赖（Python 3.11）
+sentence-transformers>=2.2.0
+chromadb>=0.4.0
+# Agent 工作流（LangGraph + DeepSeek/OpenAI）
+langgraph>=0.2.0
+langchain-openai>=0.2.0
+langchain-core>=0.3.0
+# 沙盒执行（Docker SDK）
+docker
+# 前端与测试
+streamlit>=1.35.0
+pytest>=8.0.0
+

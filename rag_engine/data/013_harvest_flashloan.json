@@ -1,0 +1,21 @@
+{
+  "id": "013",
+  "slug": "harvest_flashloan",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "Harvest Finance",
+  "attack_date": "2020-10-26",
+  "tags": [
+    "flashloan",
+    "stable-pool",
+    "price-oracle"
+  ],
+  "attack_primitives": [
+    "curve-price-skew",
+    "vault-share-mispricing"
+  ],
+  "aliases": [
+    "Harvest stablecoin exploit"
+  ],
+  "description": "Harvest vault accounting trusted temporarily skewed stable pool prices manipulated via flashloan. The attacker cycled deposits and withdrawals while oracle values were distorted, then captured the spread after normalization.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Harvest Finance\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

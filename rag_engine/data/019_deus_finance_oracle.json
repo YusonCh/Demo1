@@ -1,0 +1,21 @@
+{
+  "id": "019",
+  "slug": "deus_finance_oracle",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "DEUS Finance",
+  "attack_date": "2022-03-15",
+  "tags": [
+    "flashloan",
+    "oracle",
+    "stablecoin-mint"
+  ],
+  "attack_primitives": [
+    "oracle-price-spike",
+    "mint-redeem-arbitrage"
+  ],
+  "aliases": [
+    "DEI pricing exploit"
+  ],
+  "description": "DEUS Finance style exploit manipulated oracle references using concentrated capital, then invoked mint and redemption paths that assumed honest prices. Distorted valuation enabled outsized withdrawals.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: DEUS Finance\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

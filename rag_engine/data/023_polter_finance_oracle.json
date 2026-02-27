@@ -1,0 +1,21 @@
+{
+  "id": "023",
+  "slug": "polter_finance_oracle",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "Polter Finance",
+  "attack_date": "2024-11-17",
+  "tags": [
+    "flashloan",
+    "oracle",
+    "lending"
+  ],
+  "attack_primitives": [
+    "oracle-feed-manipulation",
+    "excessive-borrow"
+  ],
+  "aliases": [
+    "Polter market exploit"
+  ],
+  "description": "Polter Finance lending pools could be exploited when attacker manipulated the token valuation path and borrowed against inflated collateral. The attack pattern mirrors oracle-trust failures under transient liquidity shocks.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Polter Finance\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

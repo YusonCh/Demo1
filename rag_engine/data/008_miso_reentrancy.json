@@ -1,0 +1,21 @@
+{
+  "id": "008",
+  "slug": "miso_reentrancy",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "MISO",
+  "attack_date": "2021-09-18",
+  "tags": [
+    "reentrancy",
+    "auction",
+    "eth-transfer"
+  ],
+  "attack_primitives": [
+    "state-not-finalized-before-transfer",
+    "recursive-claim"
+  ],
+  "aliases": [
+    "MISO auction bug"
+  ],
+  "description": "MISO auction payout path allowed attacker-controlled callbacks during fund movement. Because claim state was finalized too late, a recursive call could observe old state and claim value repeatedly.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: MISO\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

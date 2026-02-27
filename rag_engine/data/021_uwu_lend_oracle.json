@@ -1,0 +1,21 @@
+{
+  "id": "021",
+  "slug": "uwu_lend_oracle",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "UwU Lend",
+  "attack_date": "2024-06-10",
+  "tags": [
+    "flashloan",
+    "oracle",
+    "lending"
+  ],
+  "attack_primitives": [
+    "single-block-oracle-distortion",
+    "borrow-limit-bypass"
+  ],
+  "aliases": [
+    "UwU oracle incident"
+  ],
+  "description": "UwU Lend style attacks exploit oracle update windows with flashloan capital. The attacker briefly distorts pricing inputs, triggers borrow calculations on manipulated values, then exits position.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: UwU Lend\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

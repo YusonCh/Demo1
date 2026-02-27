@@ -1,0 +1,21 @@
+{
+  "id": "017",
+  "slug": "beanstalk_flashloan_governance",
+  "vuln_type": "Flashloan-Governance-Manipulation",
+  "protocol_name": "Beanstalk",
+  "attack_date": "2022-04-17",
+  "tags": [
+    "flashloan",
+    "governance",
+    "proposal-execution"
+  ],
+  "attack_primitives": [
+    "borrowed-voting-power",
+    "same-tx-malicious-proposal"
+  ],
+  "aliases": [
+    "Beanstalk governance exploit"
+  ],
+  "description": "Beanstalk governance was compromised by temporary voting power sourced from flashloan capital. The attacker passed and executed a malicious proposal in one transaction, then repaid borrowed funds.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Beanstalk\\n// vuln_type: Flashloan-Governance-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

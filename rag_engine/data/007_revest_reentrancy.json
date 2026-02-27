@@ -1,0 +1,21 @@
+{
+  "id": "007",
+  "slug": "revest_reentrancy",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "Revest Finance",
+  "attack_date": "2022-12-27",
+  "tags": [
+    "reentrancy",
+    "nft-locking",
+    "callback"
+  ],
+  "attack_primitives": [
+    "callback-reentry",
+    "withdraw-twice-before-balance-update"
+  ],
+  "aliases": [
+    "Revest callback exploit"
+  ],
+  "description": "Revest-style vault logic was exposed to callback-driven reentry where lock release and withdrawal accounting were not fully completed before external interaction. Attackers could execute duplicate withdrawal branches in one transaction.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Revest Finance\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

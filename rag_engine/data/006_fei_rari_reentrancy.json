@@ -1,0 +1,21 @@
+{
+  "id": "006",
+  "slug": "fei_rari_reentrancy",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "FEI Rari Fuse",
+  "attack_date": "2022-04-30",
+  "tags": [
+    "reentrancy",
+    "borrow-market",
+    "fuse"
+  ],
+  "attack_primitives": [
+    "cross-function-reentry",
+    "borrow-accounting-gap"
+  ],
+  "aliases": [
+    "Rari Fuse pool exploit"
+  ],
+  "description": "Fuse market integrations suffered from reentrancy-like accounting gaps where borrower state could be observed and reused before completion. Attack paths abused nested calls to bypass expected sequencing and capture excess borrow value.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: FEI Rari Fuse\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

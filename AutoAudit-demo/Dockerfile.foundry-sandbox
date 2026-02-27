@@ -1,0 +1,38 @@
+FROM ghcr.io/foundry-rs/foundry:stable
+
+LABEL maintainer="autoaudit-demo" \
+      description="Deterministic Foundry sandbox image for AutoAudit PoC execution."
+
+USER root
+
+# Pre-bundle forge-std to avoid fetching dependencies during isolated runs.
+RUN (command -v apt-get >/dev/null 2>&1 && apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*) \
+ || (command -v apk >/dev/null 2>&1 && apk add --no-cache git ca-certificates) \
+ || (command -v yum >/dev/null 2>&1 && yum install -y git ca-certificates) \
+ || true
+RUN mkdir -p /opt/lib && \
+    git clone --depth 1 https://github.com/foundry-rs/forge-std /opt/lib/forge-std
+
+# Create non-root user consistent with sandbox.py.
+RUN addgroup --gid 2000 sandbox && \
+    adduser --uid 2000 --gid 2000 --disabled-password --gecos "" sandbox
+RUN chown -R 2000:2000 /opt/lib
+
+USER sandbox:sandbox
+WORKDIR /work
+
+ENV FOUNDRY_PROFILE=default
+
+# Preload solc 0.8.23 at build time so runtime can stay network-disabled.
+RUN mkdir -p /tmp/solc-warmup/src /tmp/solc-warmup/test && \
+    printf "[profile.default]\n" > /tmp/solc-warmup/foundry.toml && \
+    printf "src = 'src'\n" >> /tmp/solc-warmup/foundry.toml && \
+    printf "test = 'test'\n" >> /tmp/solc-warmup/foundry.toml && \
+    printf "libs = ['lib', '/opt/lib']\n" >> /tmp/solc-warmup/foundry.toml && \
+    printf "solc_version = '0.8.23'\n" >> /tmp/solc-warmup/foundry.toml && \
+    printf "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\ncontract Warmup {}\n" > /tmp/solc-warmup/src/Warmup.sol && \
+    bash -lc "cd /tmp/solc-warmup && forge build" && \
+    rm -rf /tmp/solc-warmup
+
+# Runtime command is overridden by docker-py in sandbox.py.
+CMD ["forge", "--version"]

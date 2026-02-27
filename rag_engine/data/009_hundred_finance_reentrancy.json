@@ -1,0 +1,21 @@
+{
+  "id": "009",
+  "slug": "hundred_finance_reentrancy",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "Hundred Finance",
+  "attack_date": "2023-04-15",
+  "tags": [
+    "reentrancy",
+    "lending",
+    "read-only-reentrancy"
+  ],
+  "attack_primitives": [
+    "read-only-state-assumption-break",
+    "nested-call-mispricing"
+  ],
+  "aliases": [
+    "Hundred market exploit"
+  ],
+  "description": "Hundred Finance incidents involved reentrancy-style read/write assumption violations under nested external interactions. Dependent calculations used inconsistent state snapshots, enabling extraction of mispriced value.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Hundred Finance\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

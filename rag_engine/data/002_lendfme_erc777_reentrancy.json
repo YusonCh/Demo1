@@ -1,0 +1,21 @@
+{
+  "id": "002",
+  "slug": "lendfme_erc777_reentrancy",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "Lendf.Me",
+  "attack_date": "2020-04-19",
+  "tags": [
+    "reentrancy",
+    "erc777",
+    "callback-hook"
+  ],
+  "attack_primitives": [
+    "tokensReceived-callback-reentry",
+    "accounting-desync"
+  ],
+  "aliases": [
+    "imBTC lendf.me incident"
+  ],
+  "description": "Lendf.Me style exploit abuses ERC777 tokensReceived callback. During token transfer, attacker code reenters lending logic before collateral state is finalized. This creates accounting mismatch and enables over-withdrawal of assets.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Lendf.Me\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

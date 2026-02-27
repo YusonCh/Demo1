@@ -1,0 +1,20 @@
+{
+  "id": "020",
+  "slug": "bonqdao_oracle",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "BonqDAO",
+  "attack_date": "2023-02-02",
+  "tags": [
+    "oracle-manipulation",
+    "collateral-loan"
+  ],
+  "attack_primitives": [
+    "manipulate-price-feed",
+    "borrow-on-overvalued-collateral"
+  ],
+  "aliases": [
+    "ALBT oracle exploit"
+  ],
+  "description": "BonqDAO collateral markets relied on oracle values that were insufficiently protected. Attackers manipulated feed assumptions, borrowed against overvalued collateral, and left protocol with bad debt.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: BonqDAO\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

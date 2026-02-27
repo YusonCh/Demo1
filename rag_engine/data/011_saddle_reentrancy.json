@@ -1,0 +1,21 @@
+{
+  "id": "011",
+  "slug": "saddle_reentrancy",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "Saddle",
+  "attack_date": "2022-04-30",
+  "tags": [
+    "reentrancy",
+    "liquidity-pool",
+    "virtual-price"
+  ],
+  "attack_primitives": [
+    "cross-function-reentry",
+    "invariant-update-lag"
+  ],
+  "aliases": [
+    "Saddle metapool incident"
+  ],
+  "description": "Saddle pool logic can be attacked when pool accounting variables are not finalized before external transfer hooks. Reentrant entry points can consume stale virtual price assumptions and extract value.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Saddle\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

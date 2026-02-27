@@ -1,104 +1,301 @@
 """
-RAG 知识库索引器
-将 data/ 目录下的 JSON 文件嵌入并写入 ChromaDB。
+RAG indexer for AutoAudit.
+
+Key goals:
+- lazy-load embedding model (no import-time heavy work)
+- build structured searchable text
+- support incremental index updates via a manifest hash file
 """
 
+from __future__ import annotations
+
+import hashlib
 import json
+import os
+import time
 from pathlib import Path
+from typing import Any, Dict
 
-from sentence_transformers import SentenceTransformer
 import chromadb
+from chromadb.errors import NotFoundError
+from sentence_transformers import SentenceTransformer
 
-# ── 路径配置 ──────────────────────────────────────────────────
 DATA_DIR = Path(__file__).parent / "data"
 CHROMA_DIR = Path(__file__).parent / "chroma_db"
 COLLECTION_NAME = "autoaudit_poc_knowledge"
+MANIFEST_PATH = CHROMA_DIR / "manifest.json"
+MODEL_NAME = "BAAI/bge-small-en-v1.5"
 
-# ── 全局模型（首次运行自动下载约 130MB，之后复用缓存）────────────
-print("正在加载嵌入模型 bge-small-en-v1.5 ...")
-embedding_model = SentenceTransformer("BAAI/bge-small-en-v1.5")
-print("模型加载完成。\n")
+_embedding_model: SentenceTransformer | None = None
 
 
-def get_chroma_collection():
-    """获取或创建 ChromaDB 持久化集合。"""
-    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-    collection = client.get_or_create_collection(
-        name=COLLECTION_NAME,
-        metadata={"hnsw:space": "cosine"},
+def _configure_model_logging() -> None:
+    os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+    os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+    os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
+    try:
+        from huggingface_hub.utils import disable_progress_bars
+
+        disable_progress_bars()
+    except Exception:
+        pass
+    try:
+        from transformers.utils import logging as transformers_logging
+
+        transformers_logging.set_verbosity_error()
+    except Exception:
+        pass
+
+
+_configure_model_logging()
+
+
+def _log(msg: str, quiet: bool) -> None:
+    if not quiet:
+        print(msg)
+
+
+def _get_model() -> SentenceTransformer:
+    global _embedding_model
+    if _embedding_model is None:
+        _embedding_model = SentenceTransformer(MODEL_NAME)
+    return _embedding_model
+
+
+def _load_manifest() -> dict[str, Any]:
+    if not MANIFEST_PATH.exists():
+        return {
+            "schema_version": 2,
+            "model_name": MODEL_NAME,
+            "records": {},
+        }
+    try:
+        return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {
+            "schema_version": 2,
+            "model_name": MODEL_NAME,
+            "records": {},
+        }
+
+
+def _save_manifest(records_hash: dict[str, str]) -> None:
+    CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version": 2,
+        "model_name": MODEL_NAME,
+        "records": records_hash,
+        "updated_at_epoch": int(time.time()),
+    }
+    MANIFEST_PATH.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
     )
-    return collection
 
 
-def load_all_records() -> list[dict]:
-    """从 data/ 目录读取所有 JSON 文件。"""
-    records = []
+def _normalize_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value] if value.strip() else []
+    if isinstance(value, list):
+        return [str(v).strip() for v in value if str(v).strip()]
+    return []
+
+
+def _validate_record(raw: dict[str, Any], src_file: Path) -> dict[str, Any]:
+    required = [
+        "id",
+        "vuln_type",
+        "protocol_name",
+        "attack_date",
+        "description",
+        "poc_template",
+    ]
+    missing = [k for k in required if not raw.get(k)]
+    if missing:
+        raise ValueError(f"{src_file.name} missing required fields: {missing}")
+
+    rec = dict(raw)
+    rec["id"] = str(rec["id"]).strip()
+    rec["vuln_type"] = str(rec["vuln_type"]).strip()
+    rec["protocol_name"] = str(rec["protocol_name"]).strip()
+    rec["attack_date"] = str(rec["attack_date"]).strip()
+    rec["description"] = str(rec["description"]).strip()
+    rec["poc_template"] = str(rec["poc_template"]).strip()
+    rec["tags"] = _normalize_list(rec.get("tags"))
+    rec["attack_primitives"] = _normalize_list(rec.get("attack_primitives"))
+    rec["aliases"] = _normalize_list(rec.get("aliases"))
+    return rec
+
+
+def load_all_records() -> list[dict[str, Any]]:
     json_files = sorted(DATA_DIR.glob("*.json"))
     if not json_files:
-        raise FileNotFoundError(
-            f"data/ 目录下没有找到 JSON 文件！路径：{DATA_DIR.resolve()}"
-        )
+        raise FileNotFoundError(f"No JSON files found under: {DATA_DIR.resolve()}")
+
+    records: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
     for json_file in json_files:
-        with open(json_file, "r", encoding="utf-8") as f:
-            record = json.load(f)
-            records.append(record)
-            print(f"  已加载: {json_file.name}  ->  {record['protocol_name']}")
+        raw = json.loads(json_file.read_text(encoding="utf-8"))
+        rec = _validate_record(raw, json_file)
+        if rec["id"] in seen_ids:
+            raise ValueError(f"Duplicate record id found: {rec['id']}")
+        seen_ids.add(rec["id"])
+        records.append(rec)
     return records
 
 
-def build_index(force_rebuild: bool = False) -> None:
-    """
-    构建 ChromaDB 索引。
+def build_search_text(record: dict[str, Any]) -> str:
+    parts = [
+        f"vuln_type: {record['vuln_type']}",
+        f"protocol: {record['protocol_name']}",
+    ]
+    if record.get("aliases"):
+        parts.append("aliases: " + " ".join(record["aliases"]))
+    if record.get("tags"):
+        parts.append("tags: " + " ".join(record["tags"]))
+    if record.get("attack_primitives"):
+        parts.append("primitives: " + " ".join(record["attack_primitives"]))
+    parts.append("description: " + record["description"])
+    return " | ".join(parts)
 
-    Args:
-        force_rebuild: True 时先清空旧索引再重建。
-    """
-    collection = get_chroma_collection()
 
-    existing_count = collection.count()
-    if existing_count > 0 and not force_rebuild:
-        print(f"索引已存在（{existing_count} 条记录），跳过重建。")
-        print("如需重建，请在 build_index.py 中传入 --rebuild 参数。")
-        return
+def _record_hash(record: dict[str, Any]) -> str:
+    payload = {
+        "id": record["id"],
+        "vuln_type": record["vuln_type"],
+        "protocol_name": record["protocol_name"],
+        "attack_date": record["attack_date"],
+        "description": record["description"],
+        "poc_template": record["poc_template"],
+        "tags": record.get("tags", []),
+        "attack_primitives": record.get("attack_primitives", []),
+        "aliases": record.get("aliases", []),
+    }
+    raw = json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
 
-    if force_rebuild and existing_count > 0:
-        print("强制重建：清空旧索引...")
-        client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-        client.delete_collection(COLLECTION_NAME)
-        collection = client.get_or_create_collection(
-            name=COLLECTION_NAME,
-            metadata={"hnsw:space": "cosine"},
-        )
 
-    print("开始构建 RAG 知识库索引...")
-    records = load_all_records()
+def _chunked(items: list[Any], size: int) -> list[list[Any]]:
+    return [items[i : i + size] for i in range(0, len(items), size)]
 
-    ids, documents, metadatas = [], [], []
 
-    for record in records:
-        ids.append(record["id"])
-        # 嵌入 description（自然语言），poc_template 作为 metadata 存储
-        documents.append(record["description"])
-        metadatas.append(
-            {
-                "vuln_type": record["vuln_type"],
-                "protocol_name": record["protocol_name"],
-                "attack_date": record["attack_date"],
-                "poc_template": record["poc_template"],
-            }
-        )
-
-    print(f"\n正在嵌入 {len(documents)} 条记录（建库时不加前缀）...")
-    embedding_vectors = embedding_model.encode(
-        documents, normalize_embeddings=True
-    ).tolist()
-
-    collection.add(
-        ids=ids,
-        embeddings=embedding_vectors,
-        documents=documents,
-        metadatas=metadatas,
+def _new_collection(client: chromadb.PersistentClient):
+    return client.get_or_create_collection(
+        name=COLLECTION_NAME,
+        metadata={"hnsw:space": "cosine"},
     )
 
-    print(f"\n✅ 索引构建完成！共写入 {collection.count()} 条记录。")
-    print(f"   数据库路径: {CHROMA_DIR.resolve()}")
+
+def build_index(
+    force_rebuild: bool = False,
+    batch_size: int = 16,
+    quiet: bool = False,
+) -> dict[str, Any]:
+    if batch_size <= 0:
+        batch_size = 16
+
+    t0 = time.perf_counter()
+    CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+
+    records = load_all_records()
+    by_id = {rec["id"]: rec for rec in records}
+    new_hash = {rid: _record_hash(rec) for rid, rec in by_id.items()}
+
+    manifest = _load_manifest()
+    old_hash: dict[str, str] = manifest.get("records", {})
+    manifest_available = bool(old_hash)
+
+    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+
+    do_full_rebuild = force_rebuild
+    if not force_rebuild:
+        # If collection exists but no manifest, rebuild once to create a trustworthy baseline.
+        try:
+            existing_collection = client.get_collection(COLLECTION_NAME)
+            if existing_collection.count() > 0 and not manifest_available:
+                do_full_rebuild = True
+                _log("Manifest not found, doing one-time full rebuild for consistency.", quiet)
+        except Exception:
+            pass
+
+    if do_full_rebuild:
+        try:
+            client.delete_collection(COLLECTION_NAME)
+        except Exception:
+            pass
+        collection = _new_collection(client)
+        changed_ids = sorted(by_id.keys())
+        removed_ids: list[str] = []
+    else:
+        collection = _new_collection(client)
+        changed_ids = sorted([rid for rid in by_id if old_hash.get(rid) != new_hash[rid]])
+        removed_ids = sorted([rid for rid in old_hash if rid not in by_id])
+
+    if removed_ids:
+        collection.delete(ids=removed_ids)
+        _log(f"Removed {len(removed_ids)} stale record(s).", quiet)
+
+    processed = 0
+    model = _get_model() if changed_ids else None
+    for group in _chunked(changed_ids, batch_size):
+        group_records = [by_id[rid] for rid in group]
+        search_texts = [build_search_text(rec) for rec in group_records]
+        embeddings = model.encode(  # type: ignore[union-attr]
+            search_texts,
+            normalize_embeddings=True,
+            batch_size=min(batch_size, len(search_texts)),
+            show_progress_bar=False,
+        ).tolist()
+
+        metadatas = [
+            {
+                "vuln_type": rec["vuln_type"],
+                "protocol_name": rec["protocol_name"],
+                "attack_date": rec["attack_date"],
+            }
+            for rec in group_records
+        ]
+        try:
+            collection.upsert(
+                ids=[rec["id"] for rec in group_records],
+                embeddings=embeddings,
+                documents=search_texts,
+                metadatas=metadatas,
+            )
+        except NotFoundError:
+            # Rare race with stale collection handle after delete/recreate.
+            collection = _new_collection(client)
+            collection.upsert(
+                ids=[rec["id"] for rec in group_records],
+                embeddings=embeddings,
+                documents=search_texts,
+                metadatas=metadatas,
+            )
+        processed += len(group_records)
+
+    _save_manifest(new_hash)
+
+    elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
+    stats = {
+        "total_records": len(records),
+        "processed_records": processed,
+        "removed_records": len(removed_ids),
+        "rebuild": do_full_rebuild,
+        "collection_count": collection.count(),
+        "elapsed_ms": elapsed_ms,
+        "data_dir": str(DATA_DIR.resolve()),
+        "db_dir": str(CHROMA_DIR.resolve()),
+        "manifest_path": str(MANIFEST_PATH.resolve()),
+    }
+
+    _log("RAG index build complete.", quiet)
+    _log(
+        (
+            "total={total_records}, processed={processed_records}, removed={removed_records}, "
+            "collection={collection_count}, elapsed_ms={elapsed_ms}"
+        ).format(**stats),
+        quiet,
+    )
+    return stats

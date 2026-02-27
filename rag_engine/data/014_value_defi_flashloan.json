@@ -1,0 +1,21 @@
+{
+  "id": "014",
+  "slug": "value_defi_flashloan",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "Value DeFi",
+  "attack_date": "2020-11-14",
+  "tags": [
+    "flashloan",
+    "oracle-manipulation",
+    "vault"
+  ],
+  "attack_primitives": [
+    "single-block-price-distortion",
+    "deposit-with-manipulated-nav"
+  ],
+  "aliases": [
+    "Value DeFi vault exploit"
+  ],
+  "description": "Value DeFi attack used flashloan capital to move on-chain pool prices and make the vault read an inflated valuation. The attacker then executed mint and redeem paths under manipulated NAV assumptions.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Value DeFi\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

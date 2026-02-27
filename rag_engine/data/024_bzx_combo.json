@@ -1,0 +1,21 @@
+{
+  "id": "024",
+  "slug": "bzx_combo",
+  "vuln_type": "Combo-Reentrancy-Flashloan",
+  "protocol_name": "bZx",
+  "attack_date": "2020-02-18",
+  "tags": [
+    "flashloan",
+    "oracle-manipulation",
+    "composed-attack"
+  ],
+  "attack_primitives": [
+    "flashloan-capital-bootstrap",
+    "multi-step-state-exploit"
+  ],
+  "aliases": [
+    "iToken exploit series"
+  ],
+  "description": "bZx incident family demonstrated composed attacks: flashloan-funded market distortion plus protocol state assumptions that enabled favorable trades and borrow positions. The exploit depended on composability and brittle risk checks.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: bZx\\n// vuln_type: Combo-Reentrancy-Flashloan\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

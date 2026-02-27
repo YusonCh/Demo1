@@ -1,0 +1,21 @@
+{
+  "id": "015",
+  "slug": "warp_finance_flashloan",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "Warp Finance",
+  "attack_date": "2020-12-17",
+  "tags": [
+    "flashloan",
+    "oracle",
+    "nft-collateral"
+  ],
+  "attack_primitives": [
+    "lp-collateral-mispricing",
+    "borrow-against-temporary-price"
+  ],
+  "aliases": [
+    "Warp LP oracle exploit"
+  ],
+  "description": "Warp Finance borrowers could use flashloan-driven LP valuation swings to present temporarily inflated collateral, draw excessive debt, and unwind before oracle integrity recovered.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Warp Finance\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

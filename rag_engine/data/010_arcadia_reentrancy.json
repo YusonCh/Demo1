@@ -1,0 +1,21 @@
+{
+  "id": "010",
+  "slug": "arcadia_reentrancy",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "Arcadia Finance",
+  "attack_date": "2023-07-10",
+  "tags": [
+    "reentrancy",
+    "vault",
+    "erc4626"
+  ],
+  "attack_primitives": [
+    "nested-withdraw-call",
+    "share-accounting-race"
+  ],
+  "aliases": [
+    "Arcadia vault exploit"
+  ],
+  "description": "Arcadia-like vault behavior can be abused when external token hooks run before share and debt accounting complete. A nested withdrawal path reuses stale balances and leads to over-redemption.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Arcadia Finance\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

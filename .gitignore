@@ -1,0 +1,20 @@
+# 虚拟环境与本地生成，不提交
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Agent 每次运行生成的输出（可选保留则删掉 agent_output）
+agent_output/
+agent_output.json
+
+# RAG 建库生成的 ChromaDB（一般本地建库，不提交）
+rag_engine/chroma_db/
+
+# 系统与 IDE
+.DS_Store
+.idea/
+*.swp
+.env
+.env.local

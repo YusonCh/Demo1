@@ -1,0 +1,21 @@
+{
+  "id": "012",
+  "slug": "xtoken_reentrancy",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "xToken",
+  "attack_date": "2021-05-16",
+  "tags": [
+    "reentrancy",
+    "tokenized-vault",
+    "callback"
+  ],
+  "attack_primitives": [
+    "callback-while-accounting-open",
+    "double-withdraw"
+  ],
+  "aliases": [
+    "xToken exploit"
+  ],
+  "description": "xToken-style vault withdrawals were vulnerable to callback reentry because state transitions and external transfers were interleaved. Attackers repeatedly triggered withdrawal before internal share state converged.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: xToken\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

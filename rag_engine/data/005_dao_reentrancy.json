@@ -1,0 +1,21 @@
+{
+  "id": "005",
+  "slug": "dao_reentrancy",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "The DAO",
+  "attack_date": "2016-06-17",
+  "tags": [
+    "reentrancy",
+    "splitdao",
+    "fallback"
+  ],
+  "attack_primitives": [
+    "external-call-before-effect",
+    "recursive-drain"
+  ],
+  "aliases": [
+    "DAO hack"
+  ],
+  "description": "The DAO split function pattern exposed reentrancy when ether transfer happened before internal state settlement. A malicious receiver repeatedly invoked the vulnerable path through callback execution and extracted funds across recursive frames.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: The DAO\\n// vuln_type: SWC-107-Reentrancy\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

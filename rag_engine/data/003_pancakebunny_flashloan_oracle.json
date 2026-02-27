@@ -1,0 +1,21 @@
+{
+  "id": "003",
+  "slug": "pancakebunny_flashloan_oracle",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "PancakeBunny",
+  "attack_date": "2021-05-19",
+  "tags": [
+    "flashloan",
+    "oracle-manipulation",
+    "amm-price"
+  ],
+  "attack_primitives": [
+    "one-block-liquidity-distortion",
+    "mint-on-manipulated-price"
+  ],
+  "aliases": [
+    "BUNNY mint exploit"
+  ],
+  "description": "PancakeBunny was exploited by borrowing large capital via flashloan and skewing AMM spot price in one block. The protocol trusted manipulated spot data and minted excessive reward tokens. Attacker dumped minted assets and repaid flashloan for profit.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: PancakeBunny\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}

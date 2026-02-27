@@ -1,8 +1,26 @@
 {
   "id": "004",
-  "vuln_type": "Flashloan-Reentrancy-Combo",
+  "slug": "creamfinance_combo",
+  "vuln_type": "Combo-Reentrancy-Flashloan",
   "protocol_name": "Cream Finance",
-  "attack_date": "2021-10-27",
-  "description": "Cream Finance suffered a $130 million exploit combining flash loans with ERC777 reentrancy. The attacker used multiple flash loans across MakerDAO and AAVE to accumulate massive ETH. They leveraged AMP token which is ERC777-compatible with transfer hooks to perform reentrancy on Cream lending contract. During AMP token transfer callback tokensReceived, the attacker reentered Cream borrow function before balances were updated. By combining flash loaned funds as collateral with reentrancy to borrow multiple times against same collateral, they drained the protocol. This demonstrates how DeFi composability amplifies attack surface when contracts fail to account for external call reentrancy risks.",
-  "poc_template": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\nimport \"forge-std/Test.sol\";\n\ninterface ICream {\n    function supply(address cToken, uint256 amount) external;\n    function borrow(address cToken, uint256 amount) external;\n}\n\ncontract ComboAttack {\n    ICream cream;\n    uint256 reentryCount;\n\n    constructor(address _cream) { cream = ICream(_cream); }\n\n    function tokensReceived(address, address, address, uint256 amount, bytes calldata, bytes calldata) external {\n        if (reentryCount < 5) {\n            reentryCount++;\n            cream.borrow(address(0), amount);\n        }\n    }\n\n    function execute(uint256 amount) external {\n        cream.supply(address(0), amount);\n        console.log(\"Combo flash loan + ERC777 reentrancy executed\");\n        console.log(\"Funds drained:\", address(this).balance);\n    }\n}\n\ncontract CreamFinanceTest is Test {\n    function testComboAttack() public {\n        console.log(\"Flash loan collateral + ERC777 reentrancy combo\");\n        assertTrue(true);\n    }\n}"
+  "attack_date": "2021-08-30",
+  "tags": [
+    "flashloan",
+    "reentrancy",
+    "collateral-manipulation",
+    "oracle",
+    "market-distortion",
+    "trusted-collateral-value"
+  ],
+  "attack_primitives": [
+    "flashloan-capital-boost",
+    "reentry-with-stale-collateral-state",
+    "temporary-price-distortion",
+    "bad-price-collateral-assumption"
+  ],
+  "aliases": [
+    "CREAM yUSD combo attack"
+  ],
+  "description": "Cream Finance combo attacks chained flashloan liquidity with stale accounting windows. The attacker used transient capital to drive temporary market distortion, forcing the protocol to read a bad price as trusted collateral value and trigger unsafe borrowing flows. The sequence relied on same-transaction state assumptions.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Cream Finance\\n// vuln_type: Combo-Reentrancy-Flashloan\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
 }

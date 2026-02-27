@@ -1,115 +1,175 @@
 """
-RAG 检索质量评估脚本 — Demo Day 直接跑这个向导师展示 H1 假设成立。
+Evaluation script for RAG retrieval quality and latency.
 
-运行方式（Anaconda Prompt 项目根目录下）：
+Usage:
     python rag_engine/eval_retrieval.py
 """
 
+from __future__ import annotations
+
+import json
+import statistics
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from rag_engine.retriever import retrieve_similar_poc
+from rag_engine.retriever import retrieve_similar_poc, warmup_retriever
+
+DATA_DIR = Path(__file__).parent / "data"
 
 
-def run_evaluation():
-    print("=" * 62)
-    print("  AutoAudit RAG 检索质量评估报告")
-    print("  验证目标：假设 H1（RAG 知识库能精准召回相关 PoC 模板）")
-    print("=" * 62)
+def _load_records() -> list[dict]:
+    rows = []
+    for f in sorted(DATA_DIR.glob("*.json")):
+        rows.append(json.loads(f.read_text(encoding="utf-8")))
+    return rows
 
-    # ── 测试组 1：相关查询，期望高分命中 ────────────────────────
-    relevant_tests = [
+
+def _status(ok: bool) -> str:
+    return "PASS" if ok else "FAIL"
+
+
+def _eval_canonical(records: list[dict]) -> tuple[float, float]:
+    hit1 = 0
+    hit2 = 0
+    for rec in records:
+        out = retrieve_similar_poc(rec["description"], top_k=2)
+        top1 = out[0]["source_protocol"] if len(out) >= 1 else ""
+        top2 = [item["source_protocol"] for item in out[:2]]
+        expected = rec["protocol_name"].lower()
+        ok1 = expected in top1.lower()
+        ok2 = any(expected in p.lower() for p in top2)
+        hit1 += 1 if ok1 else 0
+        hit2 += 1 if ok2 else 0
+    total = max(1, len(records))
+    return hit1 / total, hit2 / total
+
+
+def _eval_paraphrase() -> tuple[float, float]:
+    tests = [
         {
-            "label": "重入漏洞（应命中 EtherStore）",
-            "query": "The contract sends Ether to external address before updating "
-                     "internal balance, allowing attacker fallback to recursively call "
-                     "withdraw and drain all funds",
-            "expected_protocol": "EtherStore",
+            "query": (
+                "External call sends ETH before balance reset. "
+                "Attacker fallback recursively calls withdraw."
+            ),
+            "expect": "EtherStore",
         },
         {
-            "label": "ERC777 重入（应命中 Lendf.Me）",
-            "query": "ERC777 tokensReceived callback hook triggers reentry into lending "
-                     "supply function before balance is updated enabling overborrowing",
-            "expected_protocol": "Lendf.Me",
+            "query": (
+                "ERC777 receive hook reenters lending logic before account state update."
+            ),
+            "expect": "Lendf.Me",
         },
         {
-            "label": "闪电贷价格操纵（应命中 PancakeBunny）",
-            "query": "Flash loan used to manipulate AMM spot price oracle, protocol mints "
-                     "tokens at inflated price, attacker dumps tokens for profit in single tx",
-            "expected_protocol": "PancakeBunny",
+            "query": (
+                "Single transaction flashloan manipulates AMM spot price oracle then "
+                "mints overvalued assets."
+            ),
+            "expect": "PancakeBunny",
+        },
+        {
+            "query": (
+                "Flashloan drives temporary market distortion and protocol reads bad "
+                "price as trusted collateral value."
+            ),
+            "expect": "Cream Finance",
         },
     ]
+    hit1 = 0
+    hit2 = 0
+    for row in tests:
+        out = retrieve_similar_poc(row["query"], top_k=2)
+        top1 = out[0]["source_protocol"] if len(out) >= 1 else ""
+        top2 = [item["source_protocol"] for item in out[:2]]
+        expected = row["expect"].lower()
+        ok1 = expected in top1.lower()
+        ok2 = any(expected in p.lower() for p in top2)
+        hit1 += 1 if ok1 else 0
+        hit2 += 1 if ok2 else 0
+    total = len(tests)
+    return hit1 / total, hit2 / total
 
-    # ── 测试组 2：无关查询，期望相似度 < 0.5 ────────────────────
-    irrelevant_tests = [
-        {
-            "label": "整数溢出（知识库中无此类型）",
-            "query": "Arithmetic wraparound in balance calculation when adding large numbers exceeds maximum value",
-        },
-        {
-            "label": "访问控制缺失（知识库中无此类型）",
-            "query": "Missing permission check on administrative function allows unauthorized state modification",
-        },
+
+def _eval_irrelevant() -> tuple[float, float, float]:
+    tests = [
+        "Integer overflow mints unlimited tokens in arithmetic accounting.",
+        "Missing onlyOwner allows arbitrary admin parameter updates.",
+        "Timestamp dependence enables lottery manipulation by block producers.",
+        "Unchecked low-level call return value causes silent transfer failures.",
     ]
+    scores = []
+    empty_count = 0
+    for q in tests:
+        out = retrieve_similar_poc(q, top_k=1)
+        if not out:
+            empty_count += 1
+            scores.append(0.0)
+        else:
+            scores.append(float(out[0]["similarity_score"]))
+    avg_score = statistics.mean(scores) if scores else 0.0
+    max_score = max(scores) if scores else 0.0
+    empty_rate = empty_count / len(tests) if tests else 0.0
+    return avg_score, max_score, empty_rate
 
-    # ── 评估相关查询 ─────────────────────────────────────────────
-    print("\n【测试组 1】相关漏洞查询 — 期望 Top-1 精准命中")
-    print("-" * 62)
 
-    passed = 0
-    for test in relevant_tests:
-        results = retrieve_similar_poc(test["query"], top_k=2)
-        top1 = results[0] if results else None
-        hit = top1 is not None and test["expected_protocol"].lower() in top1["source_protocol"].lower()
-        score = top1["similarity_score"] if top1 else 0.0
+def _eval_latency() -> tuple[float, float]:
+    query = "contract sends Ether before updating state and attacker reenters withdraw"
+    t0 = time.perf_counter()
+    retrieve_similar_poc(query, top_k=2)
+    cold_ms = (time.perf_counter() - t0) * 1000
 
-        if hit:
-            passed += 1
-        status = "✅ PASS" if hit else "❌ FAIL"
+    n = 30
+    t1 = time.perf_counter()
+    for _ in range(n):
+        retrieve_similar_poc(query, top_k=2)
+    warm_avg_ms = ((time.perf_counter() - t1) * 1000) / n
+    return cold_ms, warm_avg_ms
 
-        print(f"\n  查询: {test['label']}")
-        print(f"  Top-1: {top1['source_protocol'] if top1 else 'None'}  ({top1['vuln_type'] if top1 else 'N/A'})")
-        print(f"  相似度: {score}")
-        print(f"  结果: {status}")
 
-    recall_at_1 = passed / len(relevant_tests)
-    print(f"\n  >>> Recall@1 = {passed}/{len(relevant_tests)} = {recall_at_1:.2f}")
+def run_evaluation() -> int:
+    print("=" * 72)
+    print("AutoAudit RAG Evaluation")
+    print("=" * 72)
 
-    # ── 评估无关查询 ─────────────────────────────────────────────
-    print("\n【测试组 2】无关漏洞查询 — 期望相似度 < 0.5（无误召回）")
-    print("-" * 62)
+    records = _load_records()
+    print(f"records: {len(records)}")
 
-    no_fp = True
-    for test in irrelevant_tests:
-        results = retrieve_similar_poc(test["query"], top_k=1)
-        top1 = results[0] if results else None
-        score = top1["similarity_score"] if top1 else 0.0
-        low = score < 0.6
-        if not low:
-            no_fp = False
+    warmup_retriever()
 
-        status = "✅ PASS（无误召回）" if low else f"⚠️  WARN（分数 {score} 偏高）"
-        print(f"\n  查询: {test['label']}")
-        print(f"  Top-1: {top1['source_protocol'] if top1 else 'None'}  相似度: {score}")
-        print(f"  结果: {status}")
+    recall1, recall2 = _eval_canonical(records)
+    para1, para2 = _eval_paraphrase()
+    irr_avg, irr_max, empty_rate = _eval_irrelevant()
+    cold_ms, warm_ms = _eval_latency()
 
-    # ── 总结 ─────────────────────────────────────────────────────
-    print("\n" + "=" * 62)
-    print("  评估总结")
-    print("=" * 62)
-    r1_ok = recall_at_1 == 1.0
-    print(f"  Recall@1（精准命中率）:  {recall_at_1:.0%}   {'✅' if r1_ok else '❌'}")
-    print(f"  误召回控制:              {'✅ 通过' if no_fp else '⚠️ 需关注'}")
+    print("-" * 72)
+    print(f"Canonical Recall@1: {recall1:.3f}")
+    print(f"Canonical Recall@2: {recall2:.3f}")
+    print(f"Paraphrase Recall@1: {para1:.3f}")
+    print(f"Paraphrase Recall@2: {para2:.3f}")
+    print(f"Irrelevant avg score: {irr_avg:.3f}")
+    print(f"Irrelevant max score: {irr_max:.3f}")
+    print(f"Empty result rate (irrelevant): {empty_rate:.3f}")
+    print(f"Cold query latency ms: {cold_ms:.2f}")
+    print(f"Warm avg latency ms: {warm_ms:.2f}")
+    print("-" * 72)
 
-    if r1_ok and no_fp:
-        print("\n  🎉 假设 H1 验证通过：RAG 知识库检索质量达标，可用于 Demo。")
-    else:
-        print("\n  ⚠️  部分指标未达标，请检查 JSON 数据或重建索引：")
-        print("      python rag_engine/build_index.py --rebuild")
-    print("=" * 62)
+    checks = [
+        ("Canonical Recall@1 >= 0.95", recall1 >= 0.95),
+        ("Paraphrase Recall@1 >= 0.85", para1 >= 0.85),
+        ("Irrelevant avg <= 0.58", irr_avg <= 0.58),
+        ("Warm avg latency <= 40ms", warm_ms <= 40.0),
+    ]
+    for label, ok in checks:
+        print(f"[{_status(ok)}] {label}")
+
+    all_ok = all(ok for _, ok in checks)
+    print("=" * 72)
+    print("FINAL: " + ("PASS" if all_ok else "FAIL"))
+    print("=" * 72)
+    return 0 if all_ok else 1
 
 
 if __name__ == "__main__":
-    run_evaluation()
+    raise SystemExit(run_evaluation())

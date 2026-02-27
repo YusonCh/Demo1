@@ -1,0 +1,21 @@
+{
+  "id": "022",
+  "slug": "platypus_flashloan",
+  "vuln_type": "Flashloan-Oracle-Manipulation",
+  "protocol_name": "Platypus Finance",
+  "attack_date": "2023-02-16",
+  "tags": [
+    "flashloan",
+    "stable-swap",
+    "collateral"
+  ],
+  "attack_primitives": [
+    "collateral-check-bypass",
+    "pool-valuation-manipulation"
+  ],
+  "aliases": [
+    "Platypus pool exploit"
+  ],
+  "description": "Platypus exploit chains leveraged flashloan liquidity with weak collateral validations. Manipulated valuation assumptions let the attacker withdraw more than allowed and realize profit before state correction.",
+  "poc_template": "// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.23;\\nimport \\\"forge-std/Test.sol\\\";\\n// protocol: Platypus Finance\\n// vuln_type: Flashloan-Oracle-Manipulation\\n\\ncontract AttackTemplateTest is Test {\\n    function testExploit() public {\\n        // TODO: replace with concrete exploit setup from historical case.\\n        assertTrue(true);\\n    }\\n}"
+}
