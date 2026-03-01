@@ -1,0 +1,16 @@
+{
+  "id": "defihack_001",
+  "slug": "test_unknown",
+  "vuln_type": "Unknown",
+  "protocol_name": "test",
+  "attack_date": "2026-03-01",
+  "tags": [
+    "defihacklabs",
+    "defihack",
+    "real-attack"
+  ],
+  "attack_primitives": [],
+  "aliases": [],
+  "description": "DeFi hack case: test",
+  "poc_template": "// Case: test\n// vuln_type: Unknown\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract testTest is Test {\n    function testExploit() public {\n        // TODO: Implement real PoC from DeFiHackLabs case\n        assertTrue(true);\n    }\n}"
+}

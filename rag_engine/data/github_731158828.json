@@ -1,0 +1,15 @@
+{
+  "id": "github_731158828",
+  "slug": "lowlevelvulnera_smartcontractvu",
+  "vuln_type": "Smart-Contract-Vulnerability",
+  "protocol_name": "LowLevelVulnerabilities",
+  "attack_date": "2023-12-13",
+  "tags": [
+    "vulnerability",
+    "github"
+  ],
+  "attack_primitives": [],
+  "aliases": [],
+  "description": "Examples and POCs of Vulnerabilities that are unique to EVM contracts written without the guardrails of higher level languages like solidity or vyper",
+  "poc_template": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\n// vuln_type: Smart-Contract-Vulnerability\n\ncontract Smart-Contract-VulneTest is Test {\n    function testExploit() public {\n        // TODO: implement exploit based on Smart-Contract-Vulnerability\n        assertTrue(true);\n    }\n}"
+}

@@ -10,4 +10,8 @@ docker
 # 前端与测试
 streamlit>=1.35.0
 pytest>=8.0.0
+# RAG爬虫模块依赖
+PyGithub>=2.1.0
+APScheduler>=3.10.0
+requests>=2.31.0
 

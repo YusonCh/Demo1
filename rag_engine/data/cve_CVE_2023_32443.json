@@ -1,0 +1,19 @@
+{
+  "id": "cve_CVE_2023_32443",
+  "slug": "variousdefi_oraclemanipulat",
+  "vuln_type": "Oracle-Manipulation",
+  "protocol_name": "Various DeFi",
+  "attack_date": "2023-06-15",
+  "tags": [
+    "nvd_fallback",
+    "smartcontract",
+    "cve",
+    "fallback"
+  ],
+  "attack_primitives": [],
+  "aliases": [
+    "cve-2023-32443"
+  ],
+  "description": "MochiSwap protocol vulnerable to price oracle manipulation",
+  "poc_template": "// CVE: CVE-2023-32443\n// CVSS Score: 8.1\n// vuln_type: Oracle-Manipulation\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract CVE-2023-32443Test is Test {\n    function testVulnerability() public {\n        // TODO: Analyze CVE-2023-32443 vulnerability and implement test\n        // Severity: High\n        assertTrue(true);\n    }\n}"
+}

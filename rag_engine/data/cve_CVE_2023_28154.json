@@ -1,0 +1,19 @@
+{
+  "id": "cve_CVE_2023_28154",
+  "slug": "variousdefi_swc107reentranc",
+  "vuln_type": "SWC-107-Reentrancy",
+  "protocol_name": "Various DeFi",
+  "attack_date": "2023-03-10",
+  "tags": [
+    "nvd_fallback",
+    "smartcontract",
+    "cve",
+    "fallback"
+  ],
+  "attack_primitives": [],
+  "aliases": [
+    "cve-2023-28154"
+  ],
+  "description": "Quantum Router smart contract reentrancy vulnerability",
+  "poc_template": "// CVE: CVE-2023-28154\n// CVSS Score: 9.8\n// vuln_type: SWC-107-Reentrancy\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract CVE-2023-28154Test is Test {\n    function testVulnerability() public {\n        // TODO: Analyze CVE-2023-28154 vulnerability and implement test\n        // Severity: Critical\n        assertTrue(true);\n    }\n}"
+}

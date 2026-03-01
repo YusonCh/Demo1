@@ -1,0 +1,16 @@
+{
+  "id": "audit_002",
+  "slug": "aavev3audit_smartcontractau",
+  "vuln_type": "Smart-Contract-Audit",
+  "protocol_name": "Aave V3 Audit",
+  "attack_date": "2022-03-15",
+  "tags": [
+    "audit_fallback",
+    "audit",
+    "fallback"
+  ],
+  "attack_primitives": [],
+  "aliases": [],
+  "description": "Security audit: Aave V3 Audit",
+  "poc_template": "// Audit Report: Aave V3 Audit\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract AuditTest is Test {\n    function testAuditFindings() public {\n        // TODO: Review audit findings for Aave V3 Audit\n        assertTrue(true);\n    }\n}"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "github_460547508",
+  "slug": "damnvulnerabled_smartcontractvu",
+  "vuln_type": "Smart-Contract-Vulnerability",
+  "protocol_name": "damn-vulnerable-defi-foundry",
+  "attack_date": "2022-02-17",
+  "tags": [
+    "vulnerability",
+    "github"
+  ],
+  "attack_primitives": [],
+  "aliases": [],
+  "description": "Damn Vulnerable DeFi - Foundry Version",
+  "poc_template": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\n// vuln_type: Smart-Contract-Vulnerability\n\ncontract Smart-Contract-VulneTest is Test {\n    function testExploit() public {\n        // TODO: implement exploit based on Smart-Contract-Vulnerability\n        assertTrue(true);\n    }\n}"
+}

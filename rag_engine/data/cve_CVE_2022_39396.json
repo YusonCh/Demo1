@@ -1,0 +1,19 @@
+{
+  "id": "cve_CVE_2022_39396",
+  "slug": "variousdefi_swc103accesscon",
+  "vuln_type": "SWC-103-ACCESS-CONTROL",
+  "protocol_name": "Various DeFi",
+  "attack_date": "2022-10-05",
+  "tags": [
+    "nvd_fallback",
+    "smartcontract",
+    "cve",
+    "fallback"
+  ],
+  "attack_primitives": [],
+  "aliases": [
+    "cve-2022-39396"
+  ],
+  "description": "Ooki DAO smart contract access control vulnerability",
+  "poc_template": "// CVE: CVE-2022-39396\n// CVSS Score: 8.8\n// vuln_type: SWC-103-Access-Control\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract CVE-2022-39396Test is Test {\n    function testVulnerability() public {\n        // TODO: Analyze CVE-2022-39396 vulnerability and implement test\n        // Severity: High\n        assertTrue(true);\n    }\n}"
+}

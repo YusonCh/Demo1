@@ -1,0 +1,16 @@
+{
+  "id": "audit_001",
+  "slug": "uniswapv3audit_smartcontractau",
+  "vuln_type": "Smart-Contract-Audit",
+  "protocol_name": "Uniswap V3 Audit",
+  "attack_date": "2021-04-30",
+  "tags": [
+    "audit_fallback",
+    "audit",
+    "fallback"
+  ],
+  "attack_primitives": [],
+  "aliases": [],
+  "description": "Security audit: Uniswap V3 Audit",
+  "poc_template": "// Audit Report: Uniswap V3 Audit\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract AuditTest is Test {\n    function testAuditFindings() public {\n        // TODO: Review audit findings for Uniswap V3 Audit\n        assertTrue(true);\n    }\n}"
+}

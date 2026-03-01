@@ -1,0 +1,15 @@
+{
+  "id": "github_599937380",
+  "slug": "faillapop_smartcontractvu",
+  "vuln_type": "Smart-Contract-Vulnerability",
+  "protocol_name": "faillapop",
+  "attack_date": "2023-02-10",
+  "tags": [
+    "vulnerability",
+    "github"
+  ],
+  "attack_primitives": [],
+  "aliases": [],
+  "description": "Vulnerable-by-design solidity protocol to help Web3 security enthusiasts practice their skills in an environment closer to real live.",
+  "poc_template": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\n// vuln_type: Smart-Contract-Vulnerability\n\ncontract Smart-Contract-VulneTest is Test {\n    function testExploit() public {\n        // TODO: implement exploit based on Smart-Contract-Vulnerability\n        assertTrue(true);\n    }\n}"
+}

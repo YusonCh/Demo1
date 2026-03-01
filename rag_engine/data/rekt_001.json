@@ -1,0 +1,17 @@
+{
+  "id": "rekt_001",
+  "slug": "polynetworkhack_bridgeexploit",
+  "vuln_type": "Bridge-Exploit",
+  "protocol_name": "Poly Network Hack",
+  "attack_date": "2021-08-10",
+  "tags": [
+    "rekt_fallback",
+    "rekt",
+    "news",
+    "fallback"
+  ],
+  "attack_primitives": [],
+  "aliases": [],
+  "description": "Poly Network Hack - $610M",
+  "poc_template": "// Rekt: Poly Network Hack - $610M\n// vuln_type: Bridge-Exploit\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract RektTest is Test {\n    function testExploit() public {\n        // TODO: Research Poly Network Hack - $610M\n        assertTrue(true);\n    }\n}"
+}

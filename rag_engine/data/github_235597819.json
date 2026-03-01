@@ -1,0 +1,15 @@
+{
+  "id": "github_235597819",
+  "slug": "securify2_smartcontractvu",
+  "vuln_type": "Smart-Contract-Vulnerability",
+  "protocol_name": "securify2",
+  "attack_date": "2020-01-22",
+  "tags": [
+    "vulnerability",
+    "github"
+  ],
+  "attack_primitives": [],
+  "aliases": [],
+  "description": "Securify v2.0",
+  "poc_template": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\n// vuln_type: Smart-Contract-Vulnerability\n\ncontract Smart-Contract-VulneTest is Test {\n    function testExploit() public {\n        // TODO: implement exploit based on Smart-Contract-Vulnerability\n        assertTrue(true);\n    }\n}"
+}

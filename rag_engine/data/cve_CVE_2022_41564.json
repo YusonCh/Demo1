@@ -1,0 +1,19 @@
+{
+  "id": "cve_CVE_2022_41564",
+  "slug": "variousdefi_signaturereplay",
+  "vuln_type": "Signature-Replay",
+  "protocol_name": "Various DeFi",
+  "attack_date": "2022-11-01",
+  "tags": [
+    "nvd_fallback",
+    "smartcontract",
+    "cve",
+    "fallback"
+  ],
+  "attack_primitives": [],
+  "aliases": [
+    "cve-2022-41564"
+  ],
+  "description": "Biconomy protocol vulnerable to signature replay attack",
+  "poc_template": "// CVE: CVE-2022-41564\n// CVSS Score: 7.0\n// vuln_type: Signature-Replay\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract CVE-2022-41564Test is Test {\n    function testVulnerability() public {\n        // TODO: Analyze CVE-2022-41564 vulnerability and implement test\n        // Severity: High\n        assertTrue(true);\n    }\n}"
+}

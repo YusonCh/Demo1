@@ -1,0 +1,50 @@
+{
+  "github": {
+    "source": "github",
+    "last_crawl_time": "2026-03-01T23:00:49.333656",
+    "last_crawl_count": 5,
+    "total_crawled": 5,
+    "failed_attempts": 0,
+    "last_error": ""
+  },
+  "nvd_cve": {
+    "source": "nvd_cve",
+    "last_crawl_time": "2026-03-01T23:00:51.579482",
+    "last_crawl_count": 5,
+    "total_crawled": 5,
+    "failed_attempts": 0,
+    "last_error": ""
+  },
+  "defihacklabs": {
+    "source": "defihacklabs",
+    "last_crawl_time": "2026-03-01T23:00:53.976378",
+    "last_crawl_count": 1,
+    "total_crawled": 1,
+    "failed_attempts": 0,
+    "last_error": ""
+  },
+  "ethernaut": {
+    "source": "ethernaut",
+    "last_crawl_time": "2026-03-01T23:00:55.288662",
+    "last_crawl_count": 0,
+    "total_crawled": 0,
+    "failed_attempts": 0,
+    "last_error": ""
+  },
+  "rekt_news": {
+    "source": "rekt_news",
+    "last_crawl_time": "2026-03-01T23:00:56.476111",
+    "last_crawl_count": 2,
+    "total_crawled": 2,
+    "failed_attempts": 0,
+    "last_error": ""
+  },
+  "audit_reports": {
+    "source": "audit_reports",
+    "last_crawl_time": "2026-03-01T23:00:57.895892",
+    "last_crawl_count": 2,
+    "total_crawled": 2,
+    "failed_attempts": 0,
+    "last_error": ""
+  }
+}

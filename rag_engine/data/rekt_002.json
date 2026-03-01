@@ -1,0 +1,17 @@
+{
+  "id": "rekt_002",
+  "slug": "roninnetworkhac_bridgeexploit",
+  "vuln_type": "Bridge-Exploit",
+  "protocol_name": "Ronin Network Hack",
+  "attack_date": "2022-03-29",
+  "tags": [
+    "rekt_fallback",
+    "rekt",
+    "news",
+    "fallback"
+  ],
+  "attack_primitives": [],
+  "aliases": [],
+  "description": "Ronin Network Hack - $625M",
+  "poc_template": "// Rekt: Ronin Network Hack - $625M\n// vuln_type: Bridge-Exploit\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract RektTest is Test {\n    function testExploit() public {\n        // TODO: Research Ronin Network Hack - $625M\n        assertTrue(true);\n    }\n}"
+}

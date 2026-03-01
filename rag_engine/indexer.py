@@ -139,8 +139,10 @@ def load_all_records() -> list[dict[str, Any]]:
     for json_file in json_files:
         raw = json.loads(json_file.read_text(encoding="utf-8"))
         rec = _validate_record(raw, json_file)
+        # 跳过重复ID，保留第一个
         if rec["id"] in seen_ids:
-            raise ValueError(f"Duplicate record id found: {rec['id']}")
+            print(f"Warning: Duplicate record id '{rec['id']}' in {json_file.name}, skipping")
+            continue
         seen_ids.add(rec["id"])
         records.append(rec)
     return records

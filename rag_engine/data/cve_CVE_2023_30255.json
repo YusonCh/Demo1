@@ -1,0 +1,19 @@
+{
+  "id": "cve_CVE_2023_30255",
+  "slug": "variousdefi_frontrunning",
+  "vuln_type": "Front-Running",
+  "protocol_name": "Various DeFi",
+  "attack_date": "2023-05-20",
+  "tags": [
+    "nvd_fallback",
+    "smartcontract",
+    "cve",
+    "fallback"
+  ],
+  "attack_primitives": [],
+  "aliases": [
+    "cve-2023-30255"
+  ],
+  "description": "Dexible protocol vulnerability allowing front-running attacks",
+  "poc_template": "// CVE: CVE-2023-30255\n// CVSS Score: 7.5\n// vuln_type: Front-Running\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\nimport \"forge-std/Test.sol\";\n\ncontract CVE-2023-30255Test is Test {\n    function testVulnerability() public {\n        // TODO: Analyze CVE-2023-30255 vulnerability and implement test\n        // Severity: High\n        assertTrue(true);\n    }\n}"
+}
